@@ -1,5 +1,11 @@
+// --------------------------------------------------------------
+// IMPORTS
+
 import { createError } from "../error.js";
 import User from "../Models/User.js";
+
+// --------------------------------------------------------------
+// ṬEST FUNCTION
 
 export const test = (req, res, next)=>{
   try{
@@ -9,37 +15,105 @@ export const test = (req, res, next)=>{
   }
 }
 
-export const getUser = (req, res, next)=>{
-  
+// ==============================================================
+/* CRUD Operations
+   
+   The user-conrtollers have the following operations:-
+
+   --------------------------------------------------------------
+    CREATE -->
+      1. Done in '/routes/auth.js
+
+   --------------------------------------------------------------
+    READ -->
+      2. getUser()
+   
+   --------------------------------------------------------------
+    UPDATE -->
+      3. updateUser()
+      4. subscribeUser()
+      5. unsubscribeUser()
+      6. likeUser()
+      7. dislikeUser()
+   
+   --------------------------------------------------------------
+    DELETE --> 
+      8. deleteUser()
+
+  ===============================================================
+*/
+
+// getUser --> To get data of a channel or user
+export const getUser = async (req, res, next)=>{
+  try{
+    const user = await User.findById(req.params.id);
+
+    const {password, email, updatedAt, __v, ...others} = user._doc;
+    res.status(201).json(others);
+  }catch(err){
+    next(err)
+  }
 }
 
+// updateUser --> To Update the user data such as name and password.
 export const updateUser = async (req, res, next)=>{
   if(req.params.id === req.user.id){
-    const updatedUser = await User.findByIdAndUpdate(req.params.id, {
-      $set: req.body
-    }, {new:true})
-    res.status(201).json(updatedUser);
+    try{
+      const updatedUser = await User.findByIdAndUpdate(req.params.id, {
+        $set: req.body
+      }, {new:true})
+      res.status(201).json(updatedUser);
+    }catch(err){
+      next(err)
+    }
   }else{
     return next(createError(401, "Auth. Failure"))
   }
 }
 
-export const deleteUser = (req, res, next)=>{
+// subscribeUser() --> To Add to subscriber count and list
+export const subscribeUser = async (req, res, next)=>{
+  try{
+    // // todo
+    // await User.findById(req.user.id, {
+    //   $push: {subscribedUsers: req.params.id},
+    // });
+    // await User.findByIdAndUpdate(req.params.id,{
+    //   $inc: {subscribers: 1},
+    // });
+    res.status(201).json(`You have subscribed to ${req.params.id}`);
+
+  }catch(err){
+    next(err)
+  }
+}
+
+export const unsubscribeUser = async (req, res, next)=>{
 
 }
 
-export const subscribeUser = (req, res, next)=>{
-  
-}
-
-export const unsubscribeUser = (req, res, next)=>{
+export const likeUser = async (req, res, next)=>{
 
 }
 
-export const likeUser = (req, res, next)=>{
+export const dislikeUser = async (req, res, next)=>{
 
 }
 
-export const dislikeUser = (req, res, next)=>{
-
+export const deleteUser = async (req, res, next)=>{
+  if(req.params.id === req.user.id){
+    try{
+      await User.findByIdAndDelete(
+        req.params.id
+      );
+      res.status(201).json({
+        "User": req.params.id,
+        "Status": "Deleted",
+      });
+    }catch(err){
+      next(err)
+    }
+  }else{
+    return next(createError(401, "Auth. Failure"))
+  }
 }
