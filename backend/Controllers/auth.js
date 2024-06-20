@@ -29,7 +29,7 @@ export const authTest = (req, res, next)=>{
       Sl No.   Field      Type      Required
         1.      Name     String       True
         2.    Password   String       True
-        3.    Others     (Optional)   False
+        3.     Others  (Optional)     False
 */
 
 export const signup = async (req, res, next)=>{
