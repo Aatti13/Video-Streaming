@@ -1,3 +1,6 @@
+import { createError } from "../error.js";
+import User from "../Models/User.js";
+
 export const test = (req, res, next)=>{
   try{
     res.status(201).json({"status": "Test Successful"})
@@ -9,8 +12,16 @@ export const test = (req, res, next)=>{
 export const getUser = (req, res, next)=>{
   
 }
-export const updateUser = (req, res, next)=>{
-  
+
+export const updateUser = async (req, res, next)=>{
+  if(req.params.id === req.user.id){
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, {
+      $set: req.body
+    }, {new:true})
+    res.status(201).json(updatedUser);
+  }else{
+    return next(createError(401, "Auth. Failure"))
+  }
 }
 
 export const deleteUser = (req, res, next)=>{

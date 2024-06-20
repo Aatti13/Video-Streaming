@@ -1,19 +1,18 @@
 import jwt from 'jsonwebtoken';
 import { createError } from './error.js';
 
-export const verificationToken = (req, res, next)=>{
-  const vToken = req.cookies.access_token;
-  if(!vToken){
-    return(
-      next(createError(401, "Authentication Failure"))
-    );
+export const verification = (req, res, next)=>{
+  const token = req.cookies.access_token;
+
+  if(!token){
+    res.status(404).json({"token": "Not found"})
   }
 
-  jwt.verify(vToken, process.env.JWT, (err, user)=>{
+  jwt.verify(token, process.env.JWT, (err, user)=>{
     if(err){
-      return next(createError(403, "Invalid Verification Token"));
+      return next(createError(403, "Invalid Verification Token"))
     }
     req.user = user;
-    next();
-  });
-};
+    next()
+  })
+}

@@ -1,6 +1,6 @@
 import express from 'express';
 import { deleteUser, dislikeUser, getUser, likeUser, subscribeUser, test, unsubscribeUser, updateUser } from '../controllers/user.js';
-import { verificationToken } from '../verification.js';
+import { verification } from '../verification.js';
 
 
 const router = express.Router();
@@ -14,7 +14,7 @@ router.get('/test', test);
 router.get('/find/:id', getUser);
 
 // Update a User
-router.put('/:id', verificationToken, updateUser);
+router.put('/:id', verification, updateUser);
 
 // Delete User
 router.delete('/:id', deleteUser);

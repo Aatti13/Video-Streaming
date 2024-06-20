@@ -15,7 +15,9 @@ import jwt from 'jsonwebtoken'; // JWT Auth
 
 export const authTest = (req, res, next)=>{
   try{
-    res.status(201).json({"status": "Auth Successful"})
+    res.status(201).json({"status": "Auth Successful",
+      "jwt": process.env.JWT
+    })
   }catch(err){
     res.status(500).json({"Error": err.message})
   }
@@ -66,7 +68,7 @@ export const signin = async (req, res, next)=>{
 
     const {password, ...others} = user._doc;
 
-    res.cookie("Access token", token,{
+    res.cookie("access_token", token,{
       httpOnly:true
     }).status(201).json(others);
   }catch(err){
