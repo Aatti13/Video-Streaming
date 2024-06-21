@@ -74,32 +74,50 @@ export const updateUser = async (req, res, next)=>{
 // subscribeUser() --> To Add to subscriber count and list
 export const subscribeUser = async (req, res, next)=>{
   try{
-    // // todo
-    // await User.findById(req.user.id, {
-    //   $push: {subscribedUsers: req.params.id},
-    // });
-    // await User.findByIdAndUpdate(req.params.id,{
-    //   $inc: {subscribers: 1},
-    // });
-    userID = req.user.id;
-    
-    await User.findByIdAndUpdate(req.params.id,{
-      $push: {subscribedUsers: req.params.id}
-    });
+    const channelToSubscribe = await User.findById(req.params.id);
+    const user = await User.findById(req.user.id);
 
-    await User.findByIdAndUpdate(req.params.id, {
-      $inc: {subscribers: 1}
-    });
-
-    res.status(201).json(`You have subscribed to ${req.params.id}`);
-
+    if(channelToSubscribe.subscribedUsers.includes(user._id)){
+      return next(createError(403, "Already Subscribed"));
+    }else{
+      await User.findByIdAndUpdate(req.params.id,{
+        $push: {subscribedUsers: req.user.id}
+      });
+  
+      await User.findByIdAndUpdate(req.params.id, {
+        $inc: {subscribers: 1}
+      });
+  
+      res.status(201).json(`You have subscribed to ${req.params.id}`);
+    }
   }catch(err){
     next(err)
   }
 }
 
 export const unsubscribeUser = async (req, res, next)=>{
+  try{
 
+    const channelToUnsub = await User.findById(req.params.id);
+    const user = await User.findById(req.user.id);
+
+    if(!channelToUnsub.subscribedUsers.includes(user._id)){
+      return next(createError(404, "Not Subscribed to channel!"))
+    }else{
+      await User.findByIdAndUpdate(req.params.id,{
+        $pull: {subscribedUsers: req.params.id}
+      });
+  
+      await User.findByIdAndUpdate(req.params.id, {
+        $inc: {subscribers: -1}
+      });
+
+      res.status(201).json(`You have unsubscribed from ${req.params.id}`);
+    }
+
+  }catch(err){
+    next(err)
+  }
 }
 
 export const likeUser = async (req, res, next)=>{
