@@ -81,6 +81,16 @@ export const subscribeUser = async (req, res, next)=>{
     // await User.findByIdAndUpdate(req.params.id,{
     //   $inc: {subscribers: 1},
     // });
+    userID = req.user.id;
+    
+    await User.findByIdAndUpdate(req.params.id,{
+      $push: {subscribedUsers: req.params.id}
+    });
+
+    await User.findByIdAndUpdate(req.params.id, {
+      $inc: {subscribers: 1}
+    });
+
     res.status(201).json(`You have subscribed to ${req.params.id}`);
 
   }catch(err){
