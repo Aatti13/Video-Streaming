@@ -125,7 +125,7 @@ export const likeUser = async (req, res, next)=>{
 }
 
 export const dislikeUser = async (req, res, next)=>{
-
+  // todo
 }
 
 export const deleteUser = async (req, res, next)=>{
