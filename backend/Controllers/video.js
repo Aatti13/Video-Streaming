@@ -59,16 +59,25 @@ export const subscribedVideoSection = async (req, res, next)=>{
 }
 
 export const getByTag = async (req, res, next)=>{
-  const tags = req.params.tags;
-  console.log(tags);
+  const tags = req.query.tags.split(',');
   try{
-    const videosByTag = await Video.find().sort({views:-1});
+    const videosByTag = await Video.find({tags:{$in:tags}}).limit(20);
     res.status(201).json(videosByTag);
   }catch(err){
     next(err);
   }
 }
 
+
+export const getByQuery = async (req, res, next)=>{
+  const query = req.query.q;
+  try{
+    const videobyQuery = await Video.find({title: {$regex: query, $option: "i"}}).limit(40);
+    res.status(201).json(videobyQuery);
+  }catch(err){
+    next(err);
+  }
+}
 // ===================================================================
 export const addViews = async (req, res, next)=>{
   try{
