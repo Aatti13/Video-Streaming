@@ -77,11 +77,11 @@ export const subscribeUser = async (req, res, next)=>{
     const channelToSubscribe = await User.findById(req.params.id);
     const user = await User.findById(req.user.id);
 
-    if(channelToSubscribe.subscribedUsers.includes(user._id)){
+    if(user.subscribedUsers.includes(channelToSubscribe._id)){
       return next(createError(403, "Already Subscribed"));
     }else{
-      await User.findByIdAndUpdate(req.params.id,{
-        $push: {subscribedUsers: req.user.id}
+      await User.findByIdAndUpdate(req.user.id,{
+        $push: {subscribedUsers: req.params.id}
       });
   
       await User.findByIdAndUpdate(req.params.id, {
@@ -101,10 +101,10 @@ export const unsubscribeUser = async (req, res, next)=>{
     const channelToUnsub = await User.findById(req.params.id);
     const user = await User.findById(req.user.id);
 
-    if(!channelToUnsub.subscribedUsers.includes(user._id)){
+    if(!user.subscribedUsers.includes(channelToUnsub._id)){
       return next(createError(404, "Not Subscribed to channel!"))
     }else{
-      await User.findByIdAndUpdate(req.params.id,{
+      await User.findByIdAndUpdate(req.user.id,{
         $pull: {subscribedUsers: req.params.id}
       });
   

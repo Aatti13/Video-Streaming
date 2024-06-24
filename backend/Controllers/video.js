@@ -1,5 +1,6 @@
 import Video from "../Models/Video.js";
 import { createError } from "../error.js";
+import User from "../Models/User.js";
 
 export const videoTest = (req, res, next)=>{
   try{
@@ -9,9 +10,10 @@ export const videoTest = (req, res, next)=>{
   }
 }
 
-// --------------------------------------------------------------
-// Upoad Video
+// ===================================================================
+// CREATE 
 
+// Upoad Video
 export const uploadVideo = async (req, res, next)=>{
   const newVideo = new Video({userId: req.user.id, ...req.body});
 
@@ -23,6 +25,10 @@ export const uploadVideo = async (req, res, next)=>{
   }
 }
 
+// ===================================================================
+// READ
+
+// getVideo --> To get videos for a particular channel
 export const getVideo = async (req, res, next)=>{
   try{
     const videoToGet = await Video.findById(req.params.id);
@@ -33,6 +39,37 @@ export const getVideo = async (req, res, next)=>{
   }
 }
 
+export const subscribedVideoSection = async (req, res, next)=>{
+  try{
+    const user = await User.findById(req.user.id);
+    const subscribedChannels = await user.subscribedUsers;
+
+    const sublist = await Promise.all(
+      subscribedChannels.map((channelId)=>{
+        return Video.find({userId: channelId});
+      })
+    )
+
+    res.status(201).json(sublist.flat().sort((a,b)=>{
+      b.createdAt-a.createdAt
+    }));
+  }catch(err){
+    next(err);
+  }
+}
+
+export const getByTag = async (req, res, next)=>{
+  const tags = req.params.tags;
+  console.log(tags);
+  try{
+    const videosByTag = await Video.find().sort({views:-1});
+    res.status(201).json(videosByTag);
+  }catch(err){
+    next(err);
+  }
+}
+
+// ===================================================================
 export const addViews = async (req, res, next)=>{
   try{
     await Video.findByIdAndUpdate(req.params.id, {
@@ -45,11 +82,21 @@ export const addViews = async (req, res, next)=>{
 }
 
 
-export const trendingVideos = async (req, res, next)=>{
+export const trendingVideosSection = async (req, res, next)=>{
   try{
-    
+    const trendingVideos = await Video.find().sort({views:-1});
+    res.status(201).json(trendingVideos)
   }catch(err){
     next(err);
+  }
+}
+
+export const randomVideosSection = async (req, res, next)=>{
+  try{
+    const randomVideos = await Video.aggregate([{$sample:{size:40}}]);
+    res.status(201).json(randomVideos);
+  }catch(err){
+    next(err)
   }
 }
 
@@ -76,6 +123,7 @@ export const updateVideo = async (req, res, next)=>{
     next(err);
   }
 }
+
 
 export const deleteVideo = async (req, res, next)=>{
   try{
