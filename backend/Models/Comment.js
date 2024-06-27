@@ -2,11 +2,11 @@ import mongoose from "mongoose";
 
 const CommentSchema = mongoose.Schema(
   {
-    userID: {
+    userId: {
       type: String,
       required: true,
     },
-    videoID:{
+    videoId:{
       type: String,
       required: true,
     },

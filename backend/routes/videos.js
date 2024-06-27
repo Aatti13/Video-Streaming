@@ -1,7 +1,7 @@
 // ----------------------------------------------
 // IMPORTS
 import express from 'express';
-import { videoTest, uploadVideo, getVideo, deleteVideo, trendingVideosSection, subscribedVideoSection, randomVideosSection, getByTag } from '../controllers/video.js';
+import { videoTest, uploadVideo, getVideo, deleteVideo, trendingVideosSection, subscribedVideoSection, randomVideosSection, getByTag, getByQuery } from '../controllers/video.js';
 import { verification } from '../verification.js';
 
 // Router init for '/api/videos
@@ -33,6 +33,6 @@ router.get('/recommended', verification);
 router.get('/subscribed', verification, subscribedVideoSection);
 
 router.get('/tags', getByTag);
-router.get('/search');
+router.get('/search', getByQuery);
 
 export default router;

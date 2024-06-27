@@ -1,6 +1,11 @@
+// -------------------------------------------------------------------
+// IMPORTS
 import Video from "../Models/Video.js";
 import { createError } from "../error.js";
 import User from "../Models/User.js";
+
+// -------------------------------------------------------------------
+// Test function
 
 export const videoTest = (req, res, next)=>{
   try{
@@ -11,9 +16,38 @@ export const videoTest = (req, res, next)=>{
 }
 
 // ===================================================================
+/* CRUD API for The Video Part of the Web-App:-
+
+    CREATE -->
+      1. uploadVideo() --> To upload video to your channel
+    
+    READ -->
+      1. getVideo() --> To get a video or videos from a channel
+
+      2. subscribedVideoSection() --> Videos from subscribed channels.
+
+      3. getByTag() --> To Search by tag given to videos
+
+      4. searchByQuery() --> To search using regex
+
+      5. trendingVideosSection() --> To display all the trending videos.
+
+      6. randomVideosSection() --> To display random videos from all corners of the platform.
+
+    UPDATE -->
+      1. addViews() --> To increase the number of views after clicking.
+
+      2. updateVideo() --> To update Video meta-data or video itself.
+
+    DELETE -->
+      1. deleteVideo() --> to delete an uploaded video.
+
+*/
+
+// -------------------------------------------------------------------
 // CREATE 
 
-// Upoad Video
+// Upload Video
 export const uploadVideo = async (req, res, next)=>{
   const newVideo = new Video({userId: req.user.id, ...req.body});
 
@@ -21,11 +55,11 @@ export const uploadVideo = async (req, res, next)=>{
     const savedVideo = await newVideo.save();
     res.status(201).json(savedVideo);
   }catch(err){
-    next(err)
+    next(err);
   }
 }
 
-// ===================================================================
+// -------------------------------------------------------------------
 // READ
 
 // getVideo --> To get videos for a particular channel
@@ -39,6 +73,7 @@ export const getVideo = async (req, res, next)=>{
   }
 }
 
+// subscribedVideoSection --> Videos from subscribed channels.
 export const subscribedVideoSection = async (req, res, next)=>{
   try{
     const user = await User.findById(req.user.id);
@@ -58,6 +93,7 @@ export const subscribedVideoSection = async (req, res, next)=>{
   }
 }
 
+// getByTag --> To Search by tag given to videos.
 export const getByTag = async (req, res, next)=>{
   const tags = req.query.tags.split(',');
   try{
@@ -68,17 +104,41 @@ export const getByTag = async (req, res, next)=>{
   }
 }
 
-
+// getByQuery --> To search using regex
 export const getByQuery = async (req, res, next)=>{
   const query = req.query.q;
   try{
-    const videobyQuery = await Video.find({title: {$regex: query, $option: "i"}}).limit(40);
+    const videobyQuery = await Video.find({title: {$regex: query, $options: "i"}}).limit(40);
     res.status(201).json(videobyQuery);
   }catch(err){
     next(err);
   }
 }
-// ===================================================================
+
+// trendingVideosSection --> To display all the trending videos.
+export const trendingVideosSection = async (req, res, next)=>{
+  try{
+    const trendingVideos = await Video.find().sort({views:-1});
+    res.status(201).json(trendingVideos)
+  }catch(err){
+    next(err);
+  }
+}
+
+// randomVideosSection --> To display random videos from all corners of the platform.
+export const randomVideosSection = async (req, res, next)=>{
+  try{
+    const randomVideos = await Video.aggregate([{$sample:{size:40}}]);
+    res.status(201).json(randomVideos);
+  }catch(err){
+    next(err)
+  }
+}
+
+// ---------------------------------------------------------------------
+// UPDATE
+
+// addViews --> To increase the number of views after clicking.
 export const addViews = async (req, res, next)=>{
   try{
     await Video.findByIdAndUpdate(req.params.id, {
@@ -90,25 +150,7 @@ export const addViews = async (req, res, next)=>{
   }
 }
 
-
-export const trendingVideosSection = async (req, res, next)=>{
-  try{
-    const trendingVideos = await Video.find().sort({views:-1});
-    res.status(201).json(trendingVideos)
-  }catch(err){
-    next(err);
-  }
-}
-
-export const randomVideosSection = async (req, res, next)=>{
-  try{
-    const randomVideos = await Video.aggregate([{$sample:{size:40}}]);
-    res.status(201).json(randomVideos);
-  }catch(err){
-    next(err)
-  }
-}
-
+// updateViews --> To update Video meta-data or video itself
 export const updateVideo = async (req, res, next)=>{
   try{
     const videoToUpdate = await Video.findById(req.params.id);
@@ -133,7 +175,10 @@ export const updateVideo = async (req, res, next)=>{
   }
 }
 
+// ---------------------------------------------------------------------
+// DELETE
 
+// deleteVideo --> to delete an uploaded video.
 export const deleteVideo = async (req, res, next)=>{
   try{
     // todo
